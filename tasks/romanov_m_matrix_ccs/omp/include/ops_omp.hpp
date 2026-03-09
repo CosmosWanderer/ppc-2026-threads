@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstddef>
+#include <vector>
+
 #include "romanov_m_matrix_ccs/common/include/common.hpp"
 #include "task/include/task.hpp"
 
@@ -17,6 +20,9 @@ class RomanovMMatrixCCSOMP : public BaseTask {
   bool PreProcessingImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
+
+  void MultiplyColumn(int col_index, const MatrixCCS &a, const MatrixCCS &b, std::vector<double> &temp_v,
+                      std::vector<size_t> &temp_r);
 };
 
 }  // namespace romanov_m_matrix_ccs
