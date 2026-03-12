@@ -62,7 +62,7 @@ void MaslovaUMultMatrTBB::FillRowValues(int i, const CRSMatrix &a, const CRSMatr
       }
     }
   }
-  std::sort(used.begin(), used.end());
+  std::ranges::sort(used);
   int write_pos = c.row_ptr[i];
   for (int col : used) {
     c.values[write_pos] = acc[col];
