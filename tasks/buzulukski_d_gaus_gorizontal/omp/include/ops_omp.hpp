@@ -15,8 +15,12 @@ class BuzulukskiDGausGorizontalOMP : public BaseTask {
   }
   explicit BuzulukskiDGausGorizontalOMP(const InType &in);
 
-  std::vector<uint8_t> &InputImage() { return input_image_; }
-  std::vector<uint8_t> &OutputImage() { return output_image_; }
+  std::vector<uint8_t> &InputImage() {
+    return input_image_;
+  }
+  std::vector<uint8_t> &OutputImage() {
+    return output_image_;
+  }
 
  private:
   bool ValidationImpl() override;

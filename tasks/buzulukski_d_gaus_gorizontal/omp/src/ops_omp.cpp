@@ -1,6 +1,7 @@
 #include "buzulukski_d_gaus_gorizontal/omp/include/ops_omp.hpp"
 
 #include <omp.h>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
