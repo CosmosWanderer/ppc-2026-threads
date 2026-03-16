@@ -73,7 +73,10 @@ void BuzulukskiDGausGorizontalOMP::ApplyGaussianToPixel(int py, int px) {
 }
 
 bool BuzulukskiDGausGorizontalOMP::RunImpl() {
-#pragma omp parallel for default(none) shared(this, height_, width_)
+  int h = height_;
+  int w = width_;
+
+#pragma omp parallel for default(none) shared(h, w, this)
   for (int py = 0; py < height_; ++py) {
     for (int px = 0; px < width_; ++px) {
       ApplyGaussianToPixel(py, px);
