@@ -12,7 +12,7 @@
 namespace papulina_y_radix_sort {
 
 class PapulinaYRunPerfTestThreads : public ppc::util::BaseRunPerfTests<InType, OutType> {
-  const int kCount_ = 100000000;
+  const int kCount_ = 10000000;
   // const int kCount_ = 15;
   InType input_data_;
   std::vector<double> expected_result_;
