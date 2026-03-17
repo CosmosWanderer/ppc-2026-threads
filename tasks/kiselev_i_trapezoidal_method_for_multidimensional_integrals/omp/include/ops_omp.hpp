@@ -1,5 +1,7 @@
 #pragma once
 
+#include <omp.h>
+
 #include <vector>
 
 #include "kiselev_i_trapezoidal_method_for_multidimensional_integrals/common/include/common.hpp"

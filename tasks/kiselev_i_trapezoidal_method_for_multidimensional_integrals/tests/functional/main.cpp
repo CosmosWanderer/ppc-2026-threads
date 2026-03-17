@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <omp.h>
 #include <stb/stb_image.h>
 
 #include <array>
