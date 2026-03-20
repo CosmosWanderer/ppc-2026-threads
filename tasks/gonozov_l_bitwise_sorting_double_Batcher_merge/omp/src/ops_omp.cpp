@@ -112,7 +112,7 @@ void BatcherOddEvenMergeIterative(std::vector<double> &arr, size_t n) {
   n = std::min(n, arr.size());
   // Сначала сливаем блоки размером 1, потом 2, потом 4 и т.д.
   for (size_t len = 2; len <= n; len *= 2) {
-#pragma omp parallel for default(none) shared(arr, n, len) private(i)
+#pragma omp parallel for default(none) shared(arr, n, len)
     for (size_t i = 0; i < n; i += len) {
       MergingHalves(arr, i, len);
     }
