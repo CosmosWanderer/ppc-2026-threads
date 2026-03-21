@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <vector>
@@ -85,15 +86,11 @@ bool AkimovIRadixSortIntMergeOMP::PreProcessingImpl() {
 bool AkimovIRadixSortIntMergeOMP::RunImpl() {
   auto &arr = GetOutput();
   int n = static_cast<int>(arr.size());
-  if (n == 0) {
-    return true;
-  }
+  if (n == 0) return true;
 
   int num_threads = ppc::util::GetNumThreads();
   // Для маленьких массивов используем один поток
-  if (n < num_threads * 100) {
-    num_threads = 1;
-  }
+  if (n < num_threads * 100) num_threads = 1;
 
   if (num_threads == 1) {
     RadixSortLocal(arr.begin(), arr.end());
@@ -127,7 +124,7 @@ bool AkimovIRadixSortIntMergeOMP::RunImpl() {
       if (i + step < num_threads) {
         auto begin = arr.begin() + offsets[i];
         auto middle = arr.begin() + offsets[i + step];
-        int end_idx = std::min(i + 2 * step, num_threads);
+        int end_idx = std::min(i + (2 * step), num_threads);
         auto end = arr.begin() + offsets[end_idx];
         std::inplace_merge(begin, middle, end);
       }
