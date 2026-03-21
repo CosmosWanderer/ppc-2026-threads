@@ -1,5 +1,7 @@
 #include "nikolaev_d_block_linear_image_filtering/omp/include/ops_omp.hpp"
 
+#include <omp.h>
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -46,6 +48,7 @@ bool NikolaevDBlockLinearImageFilteringOMP::RunImpl() {
   const std::array<std::array<int, 3>, 3> kernel = {{{1, 2, 1}, {2, 4, 2}, {1, 2, 1}}};
   const int sum = 16;
 
+  #pragma omp parallel for collapse(2) schedule(static)
   for (int ny = 0; ny < height; ++ny) {
     for (int nx = 0; nx < width; ++nx) {
       for (int ch = 0; ch < 3; ++ch) {
