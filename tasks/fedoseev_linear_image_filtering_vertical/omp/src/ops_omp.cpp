@@ -1,10 +1,11 @@
 #include "fedoseev_linear_image_filtering_vertical/omp/include/ops_omp.hpp"
 
+#include <omp.h>
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <vector>
-#include <omp.h>
 
 #include "fedoseev_linear_image_filtering_vertical/common/include/common.hpp"
 
@@ -18,8 +19,12 @@ LinearImageFilteringVerticalOMP::LinearImageFilteringVerticalOMP(const InType &i
 
 bool LinearImageFilteringVerticalOMP::ValidationImpl() {
   const InType &input = GetInput();
-  if (input.width < 3 || input.height < 3) return false;
-  if (input.data.size() != static_cast<size_t>(input.width) * static_cast<size_t>(input.height)) return false;
+  if (input.width < 3 || input.height < 3) {
+    return false;
+  }
+  if (input.data.size() != static_cast<size_t>(input.width) * static_cast<size_t>(input.height)) {
+    return false;
+  }
   return true;
 }
 
@@ -45,10 +50,15 @@ bool LinearImageFilteringVerticalOMP::RunImpl() {
   const std::array<std::array<int, 3>, 3> kernel = {{{{1, 2, 1}}, {{2, 4, 2}}, {{1, 2, 1}}}};
   const int kernel_sum = 16;
 
+  auto get_pixel = [&](int col, int row) -> int {
+    col = std::clamp(col, 0, w - 1);
+    row = std::clamp(row, 0, h - 1);
+    return src[(static_cast<size_t>(row) * static_cast<size_t>(w)) + static_cast<size_t>(col)];
+  };
+
   const int block_width = 64;
 
-  #pragma omp parallel for schedule(static) \
-      shared(w, h, src, dst, kernel, kernel_sum) default(none)
+#pragma omp parallel for schedule(static) shared(w, h, src, dst, kernel, kernel_sum) default(none)
   for (int col_start = 0; col_start < w; col_start += block_width) {
     int col_end = std::min(col_start + block_width, w);
     for (int row = 0; row < h; ++row) {
@@ -58,13 +68,12 @@ bool LinearImageFilteringVerticalOMP::RunImpl() {
           for (int kx = -1; kx <= 1; ++kx) {
             int px = col + kx;
             int py = row + ky;
-            px = std::clamp(px, 0, w - 1);
-            py = std::clamp(py, 0, h - 1);
-            int pixel = src[static_cast<size_t>(py) * static_cast<size_t>(w) + static_cast<size_t>(px)];
+            int pixel = get_pixel(px, py);
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
             sum += pixel * kernel[ky + 1][kx + 1];
           }
         }
-        dst[static_cast<size_t>(row) * static_cast<size_t>(w) + static_cast<size_t>(col)] = sum / kernel_sum;
+        dst[(static_cast<size_t>(row) * static_cast<size_t>(w)) + static_cast<size_t>(col)] = sum / kernel_sum;
       }
     }
   }
