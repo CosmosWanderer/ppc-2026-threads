@@ -67,7 +67,7 @@ bool VinyaikinaEMultidimIntegrSimpsonSEQ::PreProcessingImpl() {
 
 bool VinyaikinaEMultidimIntegrSimpsonSEQ::ValidationImpl() {
   const auto &[h, limits, function] = GetInput();
-  return !limits.empty() && function && h <= 0.01);
+  return !limits.empty() && function && h <= 0.01;
 }
 
 bool VinyaikinaEMultidimIntegrSimpsonSEQ::RunImpl() {

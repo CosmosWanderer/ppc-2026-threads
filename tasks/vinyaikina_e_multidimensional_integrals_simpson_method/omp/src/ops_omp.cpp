@@ -95,7 +95,7 @@ bool VinyaikinaEMultidimIntegrSimpsonOMP::PreProcessingImpl() {
 
 bool VinyaikinaEMultidimIntegrSimpsonOMP::ValidationImpl() {
   const auto &[h, limits, function] = GetInput();
-  return !limits.empty() && function && h <= 0.01);
+  return !limits.empty() && function && h <= 0.01;
 }
 
 bool VinyaikinaEMultidimIntegrSimpsonOMP::RunImpl() {
