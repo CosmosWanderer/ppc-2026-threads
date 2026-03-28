@@ -81,14 +81,13 @@ bool MelnikIRadixSortIntTBB::RunImpl() {
 
   tbb::parallel_for(tbb::blocked_range<std::size_t>(0, ranges.size()),
                     [&](const tbb::blocked_range<std::size_t> &range_block) {
-                      for (std::size_t range_index = range_block.begin(); range_index < range_block.end();
-                           ++range_index) {
-                        const Range range = ranges[range_index];
-                        if (range.begin < range.end) {
-                          RadixSortRange(output, buffer, range.begin, range.end);
-                        }
-                      }
-                    });
+    for (std::size_t range_index = range_block.begin(); range_index < range_block.end(); ++range_index) {
+      const Range range = ranges[range_index];
+      if (range.begin < range.end) {
+        RadixSortRange(output, buffer, range.begin, range.end);
+      }
+    }
+  });
 
   MergeSortedRanges(output, buffer, ranges);
   return !output.empty();
@@ -203,24 +202,23 @@ void MelnikIRadixSortIntTBB::MergeSortedRanges(std::vector<int> &data, std::vect
     std::vector<Range> next_ranges(merged_count);
     tbb::parallel_for(tbb::blocked_range<std::size_t>(0, merged_count),
                       [&](const tbb::blocked_range<std::size_t> &pair_block) {
-                        for (std::size_t pair_index = pair_block.begin(); pair_index < pair_block.end();
-                             ++pair_index) {
-                          const std::size_t left_pos = pair_index * 2U;
-                          const Range left = current_ranges[left_pos];
+      for (std::size_t pair_index = pair_block.begin(); pair_index < pair_block.end(); ++pair_index) {
+        const std::size_t left_pos = pair_index * 2U;
+        const Range left = current_ranges[left_pos];
 
-                          if (left_pos + 1U >= current_ranges.size()) {
-                            std::copy(source->begin() + static_cast<ptrdiff_t>(left.begin),
-                                      source->begin() + static_cast<ptrdiff_t>(left.end),
-                                      destination->begin() + static_cast<ptrdiff_t>(left.begin));
-                            next_ranges[pair_index] = left;
-                            continue;
-                          }
+        if (left_pos + 1U >= current_ranges.size()) {
+          std::copy(source->begin() + static_cast<ptrdiff_t>(left.begin),
+                    source->begin() + static_cast<ptrdiff_t>(left.end),
+                    destination->begin() + static_cast<ptrdiff_t>(left.begin));
+          next_ranges[pair_index] = left;
+          continue;
+        }
 
-                          const Range right = current_ranges[left_pos + 1U];
-                          MergeRanges(*source, *destination, left, right, left.begin);
-                          next_ranges[pair_index] = Range{.begin = left.begin, .end = right.end};
-                        }
-                      });
+        const Range right = current_ranges[left_pos + 1U];
+        MergeRanges(*source, *destination, left, right, left.begin);
+        next_ranges[pair_index] = Range{.begin = left.begin, .end = right.end};
+      }
+    });
 
     current_ranges = std::move(next_ranges);
     std::swap(source, destination);
