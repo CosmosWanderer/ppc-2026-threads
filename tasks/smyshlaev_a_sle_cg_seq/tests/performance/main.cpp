@@ -14,7 +14,7 @@
 namespace smyshlaev_a_sle_cg_seq {
 
 class SmyshlaevASleCgPerfTests : public ppc::util::BaseRunPerfTests<InType, OutType> {
-  static constexpr int kSystemSize = 512;
+  static constexpr int kSystemSize = 3000;
   InType input_data_{};
   OutType expected_x_;
 
