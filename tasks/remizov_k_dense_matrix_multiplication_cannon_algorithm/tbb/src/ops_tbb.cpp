@@ -47,4 +47,20 @@ bool RemizovKDenseMatrixMultiplicationCannonAlgorithmTbb::PreProcessingImpl() {
   return true;
 }
 
+void RemizovKDenseMatrixMultiplicationCannonAlgorithmTbb::MultiplyBlock(
+    const std::vector<std::vector<double>> &a,
+    const std::vector<std::vector<double>> &b,
+    std::vector<std::vector<double>> &c,
+    int block_size) {
+  for (int i = 0; i < block_size; ++i) {
+    for (int j = 0; j < block_size; ++j) {
+      double accumulator = 0.0;
+      for (int k = 0; k < block_size; ++k) {
+        accumulator += a[i][k] * b[k][j];
+      }
+      c[i][j] += accumulator;
+    }
+  }
+}
+
 }  // namespace remizov_k_dense_matrix_multiplication_cannon_algorithm
