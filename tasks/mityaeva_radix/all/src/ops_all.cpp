@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstring>
+#include <utility>
 #include <vector>
 
 #include "mityaeva_radix/common/include/common.hpp"
@@ -19,7 +20,7 @@ void ComputeChunkParams(size_t total_size, int mpi_size, std::vector<size_t> &ch
   size_t remainder = total_size % mpi_size;
 
   for (int i = 0; i < mpi_size; ++i) {
-    chunk_sizes[i] = base_chunk + (i < static_cast<int>(remainder) ? 1 : 0);
+    chunk_sizes[i] = base_chunk + (std::cmp_less(i, remainder) ? 1 : 0);
     offsets[i] = (i == 0) ? 0 : offsets[i - 1] + chunk_sizes[i - 1];
   }
 }
