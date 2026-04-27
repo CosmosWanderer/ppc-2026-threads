@@ -18,6 +18,9 @@ class ZavyalovAComplSparseMatrMultSTL : public BaseTask {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
   static SparseMatrix MultiplicateWithStl(const SparseMatrix &matr_a, const SparseMatrix &matr_b);
+  static void Worker(int tid, std::size_t start, std::size_t end, const SparseMatrix &matr_a,
+                     const SparseMatrix &matr_b,
+                     std::vector<std::map<std::pair<std::size_t, std::size_t>, Complex>> &local_maps);
 };
 
 }  // namespace zavyalov_a_compl_sparse_matr_mult
