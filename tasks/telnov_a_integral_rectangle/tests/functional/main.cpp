@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <stb/stb_image.h>
 
 #include <array>
 #include <cmath>
@@ -52,7 +51,7 @@ class TelnovAIntegralRectangleFuncTests : public ppc::util::BaseRunFuncTests<InT
 
 namespace {
 
-TEST_P(TelnovAIntegralRectangleFuncTests, MatmulFromPic) {
+TEST_P(TelnovAIntegralRectangleFuncTests, IntegralRectangleCorrectness) {
   ExecuteTest(GetParam());
 }
 
@@ -70,9 +69,9 @@ const auto kTestTasksList = std::tuple_cat(
 
 const auto kGtestValues = ppc::util::ExpandToValues(kTestTasksList);
 
-const auto kPerfTestName = TelnovAIntegralRectangleFuncTests::PrintFuncTestName<TelnovAIntegralRectangleFuncTests>;
+const auto kFuncTestName = TelnovAIntegralRectangleFuncTests::PrintFuncTestName<TelnovAIntegralRectangleFuncTests>;
 
-INSTANTIATE_TEST_SUITE_P(PicMatrixTests, TelnovAIntegralRectangleFuncTests, kGtestValues, kPerfTestName);
+INSTANTIATE_TEST_SUITE_P(IntegralRectangleFuncTests, TelnovAIntegralRectangleFuncTests, kGtestValues, kFuncTestName);
 
 }  // namespace
 
