@@ -1,7 +1,6 @@
 #include "sabutay_sparse_complex_ccs_mult_all/all/include/ops_all.hpp"
 
 #include <mpi.h>
-
 #include <omp.h>
 
 #include <algorithm>
@@ -22,7 +21,6 @@ namespace {
 
 constexpr double kDropMagnitude = 1e-14;
 
-// validation helpers
 auto IsValidStructure(const CCS &matrix) -> bool {
   if (matrix.row_count < 0 || matrix.col_count < 0) {
     return false;
@@ -48,7 +46,6 @@ auto IsValidStructure(const CCS &matrix) -> bool {
   return std::ranges::all_of(matrix.row_index, [&matrix](int row) { return row >= 0 && row < matrix.row_count; });
 }
 
-// shared sparse helpers
 void BuildColumnFromRight(const CCS &left, const CCS &right, int column_index,
                           std::vector<std::pair<int, std::complex<double>>> &buffer) {
   const int right_begin = right.col_start[static_cast<std::size_t>(column_index)];
@@ -159,7 +156,6 @@ SabutaySparseComplexCcsMultAll::SabutaySparseComplexCcsMultAll(const InType &in)
 
 void SabutaySparseComplexCcsMultAll::BuildProductMatrix(const CCS &left, const CCS &right, CCS &out,
                                                         ppc::task::TypeOfTask backend) {
-  // backend implementations
   if (backend == ppc::task::TypeOfTask::kSEQ || backend == ppc::task::TypeOfTask::kSTL) {
     SpmmAbc(left, right, out, kDropMagnitude);
     return;
@@ -228,24 +224,23 @@ void SabutaySparseComplexCcsMultAll::BuildProductMatrix(const CCS &left, const C
 
   oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<int>(0, right.col_count),
                             [&](const oneapi::tbb::blocked_range<int> &range) {
-                              std::vector<std::pair<int, std::complex<double>>> buffer;
-                              buffer.reserve(128U);
-                              for (int jcol = range.begin(); jcol < range.end(); ++jcol) {
-                                BuildColumnFromRight(left, right, jcol, buffer);
-                                if (!buffer.empty()) {
-                                  SortBufferByRow(buffer);
-                                  CCS tmp;
-                                  CoalesceSortedPairs(buffer, tmp, kDropMagnitude);
-                                  local_row_index[static_cast<std::size_t>(jcol)] = std::move(tmp.row_index);
-                                  local_nz[static_cast<std::size_t>(jcol)] = std::move(tmp.nz);
-                                } else {
-                                  local_row_index[static_cast<std::size_t>(jcol)].clear();
-                                  local_nz[static_cast<std::size_t>(jcol)].clear();
-                                }
-                                local_sizes[static_cast<std::size_t>(jcol)] =
-                                    static_cast<int>(local_nz[static_cast<std::size_t>(jcol)].size());
-                              }
-                            });
+    std::vector<std::pair<int, std::complex<double>>> buffer;
+    buffer.reserve(128U);
+    for (int jcol = range.begin(); jcol < range.end(); ++jcol) {
+      BuildColumnFromRight(left, right, jcol, buffer);
+      if (!buffer.empty()) {
+        SortBufferByRow(buffer);
+        CCS tmp;
+        CoalesceSortedPairs(buffer, tmp, kDropMagnitude);
+        local_row_index[static_cast<std::size_t>(jcol)] = std::move(tmp.row_index);
+        local_nz[static_cast<std::size_t>(jcol)] = std::move(tmp.nz);
+      } else {
+        local_row_index[static_cast<std::size_t>(jcol)].clear();
+        local_nz[static_cast<std::size_t>(jcol)].clear();
+      }
+      local_sizes[static_cast<std::size_t>(jcol)] = static_cast<int>(local_nz[static_cast<std::size_t>(jcol)].size());
+    }
+  });
 
   for (int jcol = 0; jcol < right.col_count; ++jcol) {
     out.col_start[static_cast<std::size_t>(jcol) + 1U] =
@@ -262,7 +257,6 @@ void SabutaySparseComplexCcsMultAll::BuildProductMatrix(const CCS &left, const C
   }
 }
 
-// task lifecycle
 bool SabutaySparseComplexCcsMultAll::ValidationImpl() {
   const CCS &left = std::get<0>(GetInput());
   const CCS &right = std::get<1>(GetInput());
